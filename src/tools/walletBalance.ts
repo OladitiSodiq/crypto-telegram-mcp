@@ -1,7 +1,9 @@
+// src/tools/walletBalance.ts
 import axios from "axios";
 import { getCache, setCache } from "../utils/cache.js";
 import { rateLimit } from "../utils/rateLimiter.js";
 import { formatEther } from "ethers";
+import { sendTelegram } from "../utils/telegram.js";
 
 type WalletBalanceArgs = {
   address: string;

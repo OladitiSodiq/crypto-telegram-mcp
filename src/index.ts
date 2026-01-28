@@ -9,6 +9,8 @@ import { walletBalanceTool } from "./tools/walletBalance.js";
 import { gasEstimatorTool } from "./tools/gasEstimator.js";
 import { telegramBotTool } from "./tools/telegramBot.js";
 
+import { sendTelegram } from "./utils/telegram.js";
+
 // --- Put all tools in this array
 const tools = [
   cryptoConverterTool,
@@ -18,14 +20,14 @@ const tools = [
   telegramBotTool
 ];
 
-// --- Create MCP server (working pattern)
+// --- Create MCP server
 const server = new Server(
   {
     name: "Blockchain MCP Server",
     version: "1.0.0"
   },
   {
-    capabilities: { tools: {} }, // required by SDK
+    capabilities: { tools: {} },
   }
 );
 
@@ -53,7 +55,6 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
 });
 
 // --- Handler: Call a tool
-// Call tool handler
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const toolName = request.params.name;
   const tool = tools.find((t) => t.name === toolName);
@@ -71,9 +72,73 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   }
 
   try {
-    // Only pass request.params.arguments
-    // Remove the second argument ({} as any)
-    const result = await tool.execute(request.params.arguments as any);
+    const args = request.params.arguments ?? {}; // ensure it exists
+
+    // --- Execute tool
+    const result = await tool.execute(args as any);
+
+    // --- Prepare Telegram message
+    let telegramMessage: string | null = null;
+
+    switch (toolName) {
+      case "wallet_balance": {
+        const res = result as { chain: string; balance: string };
+        telegramMessage = `💼 Wallet Balance Report
+Chain: ${res.chain.toUpperCase()}
+Balance: ${res.balance} ${res.chain === "polygon" ? "MATIC" : "ETH"}`;
+        break;
+      }
+
+      case "crypto_converter": {
+        const res = result as { rate: number; converted: number };
+        const from = (args as any).from ?? "";
+        const to = (args as any).to ?? "";
+        const amount = (args as any).amount ?? 0;
+
+        telegramMessage = `💱 Crypto Conversion
+${amount} ${from.toUpperCase()} → ${res.converted} ${to.toUpperCase()}
+Rate: ${res.rate}
+Converted: ${res.converted}`;
+        break;
+      }
+
+      case "gas_estimator": {
+        const res = result as {
+          chain: string;
+          safeGasPrice: string;
+          proposeGasPrice: string;
+          fastGasPrice: string;
+          lastBlock: string;
+        };
+        telegramMessage = `⛽ Gas Price Update (${res.chain.toUpperCase()})
+Safe: ${res.safeGasPrice} gwei
+Propose: ${res.proposeGasPrice} gwei
+Fast: ${res.fastGasPrice} gwei
+Last Block: ${res.lastBlock}`;
+        break;
+      }
+
+      case "frax_transactions": {
+        const res = result as {
+          chain: string;
+          transactions: Array<{ hash: string; from: string; to: string; amount: string; timestamp: string }>;
+        };
+        if (Array.isArray(res.transactions) && res.transactions.length > 0) {
+          telegramMessage = `🧊 Latest FRAX Transactions (${res.chain.toUpperCase()})
+${res.transactions.map(
+            (tx) =>
+              `Hash: ${tx.hash.slice(0, 10)}... | From: ${tx.from} | To: ${tx.to} | Amount: ${tx.amount} | Time: ${tx.timestamp}`
+          ).join("\n")}`;
+        }
+        break;
+      }
+
+      default:
+        telegramMessage = null;
+    }
+
+    // --- Send Telegram if applicable
+    if (telegramMessage) await sendTelegram(telegramMessage);
 
     return {
       content: [
@@ -84,7 +149,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       ],
     };
   } catch (error: unknown) {
-    // 'error' is unknown by default in TypeScript 4.4+
     const message = error instanceof Error ? error.message : String(error);
     return {
       content: [
