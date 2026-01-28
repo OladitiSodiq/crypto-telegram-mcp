@@ -144,6 +144,51 @@ Rate limiter protects APIs and your server.
 
 
 
+##  Usage
+
+### Running the Server
+
+**For development with MCP Inspector**:
+```bash
+npm run dev
+```
+
+This will:
+1. Build the TypeScript code
+2. Start the MCP Inspector
+3. Launch your server with the inspector interface
+
+**For production**:
+```bash
+npm run build
+node dist/index.js
+```
+
+### Using with MCP Inspector
+
+1. Run `npm run dev`
+2. The inspector will start at `http://localhost:----`
+3. Open the URL with the authentication token provided in the console
+4. You can now test all tools interactively
+
+### Integrating with Claude Desktop
+
+Add to your Claude Desktop configuration file:
+
+**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "crypto-telegram-mcp": {
+      "command": "node",
+      "args": ["path/to/crypto-telegram-mcp/dist/index.js"]
+    }
+  }
+}
+
+
 
 ##  Contributing
 
