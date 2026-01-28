@@ -9,14 +9,14 @@ type CryptoConverterArgs = {
   amount: number;
 };
 
-// Map common symbols to CoinGecko IDs
+
 const coinMap: Record<string, string> = {
   BTC: "bitcoin",
   ETH: "ethereum",
   USDC: "usd-coin",
   BNB: "binancecoin",
   DAI: "dai",
-  // Add more coins as needed
+
 };
 
 export const cryptoConverterTool = {
