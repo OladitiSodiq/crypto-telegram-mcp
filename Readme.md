@@ -1,7 +1,7 @@
 #  MCP Blockchain Toolkit
 
 A **Model Context Protocol (MCP) server** that provides blockchain
-utilities for Ethereum-compatible chains using **Etherscan API V2**, caching, and Telegram notifications.
+utilities for Ethereum-compatible chains using **Etherscan API V2**, caching, and Telegram channel message.
 
 ##  Features
 
@@ -14,16 +14,10 @@ utilities for Ethereum-compatible chains using **Etherscan API V2**, caching, an
 
 ##  Environment Variables
 
-COINGECKO_API=your_key
-ETHERSCAN_API_KEY=your_key
-TELEGRAM_CHAT_ID=your_token
-TELEGRAM_BOT_TOKEN=your_chat_id
-
-##  Run
-
-npm install\
-npm run build\
-npm start
+COINGECKO_API=your_key\
+ETHERSCAN_API_KEY=your_key\
+TELEGRAM_CHAT_ID=your_token\
+TELEGRAM_BOT_TOKEN=your_chat_id\
 
 
 ##  Tools Included
