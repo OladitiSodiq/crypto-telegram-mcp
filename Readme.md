@@ -182,7 +182,9 @@ Add to your Claude Desktop configuration file:
   }
 }
 
+```
 
+---
 
 ##  Contributing
 
