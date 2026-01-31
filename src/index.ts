@@ -9,6 +9,9 @@ import { walletBalanceTool } from "./tools/walletBalance.js";
 import { gasEstimatorTool } from "./tools/gasEstimator.js";
 import { telegramBotTool } from "./tools/telegramBot.js";
 
+import { startTelegramListener } from "./telegramListener.js";
+
+
 import { sendTelegram } from "./utils/telegram.js";
 
 // --- Put all tools in this array
@@ -167,6 +170,7 @@ ${res.transactions.map(
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
+  startTelegramListener();
   console.error("✅ Blockchain MCP Server running on stdio");
 }
 
